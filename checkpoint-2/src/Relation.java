@@ -32,7 +32,7 @@ public class Relation {
 	private String name;
 	private String[] attributeList;
 	private int numOfPA;
-	private ArrayList <Object[]> tuples = new ArrayList <> ();
+	private ArrayList <String[]> tuples = new ArrayList <> ();
 	
 	
 	
@@ -55,24 +55,83 @@ public class Relation {
 	}
 	
 	public String[] getPAList () {
-		return Arrays.copyOfRange(this.attributeList, 0, numOfPA-1);
+		return Arrays.copyOfRange(this.attributeList, 0, numOfPA);
 	}
 	
-	public Object[] getOneTuple (int tupleIdx) {
+	public String[] getOneTuple (int tupleIdx) {
 		return this.tuples.get(tupleIdx);
 	}
 	
-	public ArrayList <Object[]> getAllTuples () {
+	public ArrayList <String[]> getAllTuples () {
 		return this.tuples;
 	}
 	
+	public void printName () {
+		System.out.println(this.name);
+	}
 	
+	public void printAllAttributes () {
+		
+		System.out.println(
+				"All attributes for " 
+				+ this.getName()
+				+ ": ");
+		
+		String [] tmpAttributeList = this.getAttributeList();
+		int isKeyIdxLimit = this.getPAList().length;
+		
+		for(int tmpIdx = 0; tmpIdx < tmpAttributeList.length; tmpIdx++) {
+			System.out.print(
+					"Attr "
+					+ String.valueOf(tmpIdx) 
+					+ ". "
+					+ tmpAttributeList[tmpIdx]);
+			
+			if (tmpIdx < isKeyIdxLimit) {
+				System.out.print(" (key)");
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+		
+	public void printOneTuple (int tupleIdx) {
+		
+		String [] tmpTuple = this.getOneTuple(tupleIdx);
+		String [] tmpAttributeList = this.getAttributeList();
+		int isKeyIdxLimit = this.getPAList().length;
+		
+		for(int tmpIdx = 0; tmpIdx < tmpAttributeList.length; tmpIdx++) {
+			System.out.print(
+					"Attr "
+					+ String.valueOf(tmpIdx) 
+					+ ". "
+					+ tmpAttributeList[tmpIdx]);
+			
+			if (tmpIdx < isKeyIdxLimit) {
+				System.out.print(" (key)");
+			}
+			
+			System.out.println(
+					": \t" 
+					+ tmpTuple[tmpIdx]);
+		}
+		System.out.println();
+	}
 	
-	public void insertNewTuple (Object[] newTuple) {
+	public void printAllTuples () {
+		int idxLimit = this.getAllTuples().size();
+		for(int tmpIdx = 0; tmpIdx < idxLimit; tmpIdx++) {
+			System.out.println("Tuple " + String.valueOf(tmpIdx));
+			this.printOneTuple(tmpIdx);
+		}
+	}
+	
+	public void insertNewTuple (String[] newTuple) {
 		this.tuples.add(newTuple);
 	}
 	
-	public void updateExistingTuple (Object[] updateTuple, int tupleIdx) {
+	public void updateExistingTuple (String[] updateTuple, int tupleIdx) {
 		this.tuples.set(tupleIdx, updateTuple);
 	}
 	
