@@ -4,8 +4,10 @@ public class MainApplication {
 
 	public static void main(String[] args) {
 
+		//Declare and seed (add data to) relations.
 		Relation [] allRelations = initAllRelations();
 		
+		//Remember to close input stream at the very end.
 		Scanner consoleIn = new Scanner(System.in);
 		
 		while(true) {
@@ -56,6 +58,10 @@ public class MainApplication {
 				System.out.println("Returning to Main Menu.\n");
 				
 			} else if(userSelection == mainMenuSearchOption) {
+				
+				//TODO
+				
+				System.out.println("Returning to Main Menu.\n");
 				
 			} else {
 				break;
