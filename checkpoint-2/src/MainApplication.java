@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class MainApplication {
@@ -10,6 +11,9 @@ public class MainApplication {
 		//Remember to close input stream at the very end.
 		Scanner consoleIn = new Scanner(System.in);
 		
+		//Print disclaimer (application README).
+		Disclaimer.printDisclaimer(consoleIn);
+		
 		while(true) {
 			//Start at the main menu.
 			printMainMenu();
@@ -21,17 +25,18 @@ public class MainApplication {
 			
 			int mainMenuInsertOption = 0;
 			int mainMenuSearchOption = 1;
+			int mainMenuPrintAllOption = 2;
 			
 			if(userSelection == mainMenuInsertOption) {
 				
 				/**
-                 * Option "0": insert new tuple.
+                 * Option 0: insert new tuple.
                  * 
-                 * First select the relation for insertion;
-                 * Second obtain all attribute values for the tuple;
-                 * Third add tuple to the relation;
-                 * Fourth print all tuples of the relation;
-                 * Finally return to main menu.
+                 * First,   select the relation for insertion;
+                 * Second,  obtain all attribute values for the tuple;
+                 * Third,   add tuple to the relation;
+                 * Fourth,  print all tuples of the relation;
+                 * Finally, return to main menu.
                  */
 				System.out.println();
 				System.out.println("Select Relation to Insert");
@@ -47,7 +52,8 @@ public class MainApplication {
 						+ tmpR.getName()
 						+ "\n");
 				
-				String [] newTuple = createNewTuple(tmpR, consoleIn);
+				String [] newTuple = 
+						Relation.createNewTuple(tmpR, consoleIn);
 				tmpR.insertNewTuple(newTuple);
 				
 				System.out.println("New tuple successfully added to "
@@ -59,49 +65,162 @@ public class MainApplication {
 				
 			} else if(userSelection == mainMenuSearchOption) {
 				
-				//TODO
+				/**
+                 * Option 1: search for existing tuple.
+                 * 
+                 * First,   select the relation to search from;
+                 * Second,  obtain all key attribute values for the search;
+                 * Third,   search for and return the results (tuple or not found);
+                 * Fourth,  let user decide whether to delete or update tuple;
+                 * Finally, return to main menu.
+                 */
+				
+				System.out.println();
+				System.out.println("Select Relation to Search From");
+				
+				printAllRelationNames(allRelations);
+				int userRIdx = consoleIn.nextInt();
+				consoleIn.nextLine();
+				
+				Relation tmpR = allRelations[userRIdx];
+				
+				System.out.println();
+				System.out.println("Search for existing tuple from relation "
+						+ tmpR.getName()
+						+ "\n");
+				
+				//Obtain key value(s) used for tuple search
+				System.out.println("Please enter key attributes values to search:\n");
+				
+				int tmpRNumOfKeys = tmpR.getPAList().length;
+				String [] userKeyInput = new String [tmpRNumOfKeys];
+				String [] tmpRPAList = tmpR.getPAList();
+				
+				for(int tmpIdx = 0; tmpIdx < tmpRNumOfKeys; tmpIdx++) {
+					System.out.print("Enter value for key attribute ("
+							+ tmpRPAList[tmpIdx]
+							+ "): ");
+					userKeyInput[tmpIdx] = consoleIn.nextLine();
+				}
+				
+				//Search and return first matching tuple using user keys.
+				String [] searchResult = null;
+				ArrayList <String[]> tmpRAllTuples = tmpR.getAllTuples();
+				
+				//markingIdx indexes which tuple of the relation.
+				int markingIdx = 0;
+				while(markingIdx < tmpRAllTuples.size()) {
+					
+					boolean matchFound = true;
+					String [] tmpTuple = tmpRAllTuples.get(markingIdx);
+					
+					//tmpIdx indexes which attribute of the tuple.
+					for(int tmpIdx = 0; tmpIdx < tmpRNumOfKeys; tmpIdx++) {
+						//Short-circuit to save time.
+						if(!userKeyInput[tmpIdx].equals(tmpTuple[tmpIdx])) {
+							matchFound = false;
+							break;
+						}
+					}
+					
+					//Only return the first match.
+					if(matchFound) {
+						searchResult = tmpTuple;
+						break;
+					}
+					
+					markingIdx++;
+				}
+				
+				//If a match has been found, continue to update or delete.
+				if (searchResult != null) {
+					
+					//Confirm tuple found and print.
+					System.out.println();
+					System.out.println("The tuple from relation "
+							+ tmpR.getName()
+							+ " that matches your search is:\n");
+					tmpR.printOneTuple(markingIdx);
+					
+					//Continue to select update, delete, or return to main menu.
+					System.out.println();
+					System.out.println("If you'd like to update or delete this tuple, "
+							+ "select the corresponding index below:\n");
+					System.out.println("0. Update tuple.");
+					System.out.println("1. Delete tuple.");
+					System.out.println("2. Return to main menu.");
+					System.out.println();
+					System.out.print("Enter your selection: ");
+					int userTupleDecision = consoleIn.nextInt();
+					consoleIn.nextLine();
+					
+					//Update is implemented as overwrite.
+					if(userTupleDecision == 0) {
+						
+						System.out.println();
+						System.out.println("To update tuple, "
+								+ "please enter its updated attribute values.\n");
+						
+						String [] overwriteTuple = 
+								Relation.createNewTuple(tmpR, consoleIn);
+						tmpR.updateExistingTuple(overwriteTuple, markingIdx);
+						
+						System.out.println("Your selected tuple "
+								+ "has been successfully updated.");
+						
+					} else if (userTupleDecision == 1) {
+						tmpR.deleteExistingTuple(markingIdx);
+						System.out.println();
+						System.out.println("Your selected tuple "
+								+ "has been successfully deleted.");
+					}
+					
+					
+				} else {
+					System.out.println();
+					System.out.println("Unfortunately,"
+							+ " no matching tuple was found.");
+				};
+				
+				System.out.println();
+				System.out.println("Returning to Main Menu.\n");
+				
+			} else if (userSelection == mainMenuPrintAllOption) {
+				
+				/**
+                 * Option 2: print every relation name and tuples.
+                 */
+				
+				System.out.println();
+				
+				for(int tmpIdx = 0; tmpIdx < allRelations.length; tmpIdx++) {
+					
+					Relation tmpR = allRelations[tmpIdx];
+					
+					//Print until reached null Relation reference.
+					if(tmpR != null) {
+						
+						System.out.println("Printing all tuples for "
+								+ tmpR.getName()
+								+ "\n");
+						tmpR.printAllTuples();
+						
+					} else break;
+				}
 				
 				System.out.println("Returning to Main Menu.\n");
 				
-			} else {
-				break;
-			}
+			} else break;
 		}
 		
 		
 		//Main loop exited, print exit message and close scanner.
 		String exitMessage = "Thank you for using Team SHRX's Java frontend."
 				+ " Goodbye.";
+		
+		System.out.println();
 		System.out.println(exitMessage);
 		consoleIn.close();
-		
-//		
-//		printAllRelations(allRelations);
-//		printMainMenu();
-//		
-//		Relation R2 = allRelations[2];
-//		
-//		R2.insertNewTuple(new String [] {
-//			"TestName",
-//			"TestDesc",
-//			"TestWebsite",
-//			"TestAddress"});
-//		
-//		R2.updateExistingTuple(
-//				new String [] {
-//					"NewTestName",
-//					"NewTestDesc",
-//					"NewTestWebsite",
-//					"NewTestAddress"},
-//				3);
-//		
-//		R2.deleteExistingTuple(0);
-//		
-//		Scanner consoleIn = new Scanner (System.in);
-//		String [] tmpNewTuple = createNewTuple(R2, consoleIn);
-//		R2.insertNewTuple(tmpNewTuple);
-//		
-//		R2.printAllTuples();
 				
 	}
 
@@ -255,16 +374,17 @@ public class MainApplication {
 	}
 
 	/**
-	 * Print frontend main menu options,
+	 * Print front-end main menu options,
 	 * and prompt for user selection.
 	 */
 	private static void printMainMenu() {
-		System.out.println("Main Menu\n");
+		System.out.println("[Main Menu]\n");
 		System.out.println("Select an option"
 				+" by entering the corresponding index below:\n");
 		System.out.println("0. Add new record.");
 		System.out.println("1. Search existing record.");
-		System.out.println("2. Exit.\n");
+		System.out.println("2. Print all relations and tuples.");
+		System.out.println("3. Exit.\n");
 		System.out.print("Enter your selection: ");
 	}
 	
@@ -292,37 +412,10 @@ public class MainApplication {
 				System.out.print(String.valueOf(tmpIdx) + ". ");
 				tmpRelation.printName();
 				
-			} else {
-				break;
-			}
-		}
-		
-		System.out.print("\nEnter your selection: ");
-	}
-	
-	private static String [] createNewTuple (Relation R, Scanner consoleIn) {
-		
-		String [] tmpAttributeList = R.getAttributeList();
-		String [] newTuple = new String [tmpAttributeList.length];
-		
-		int isKeyIdxLimit = R.getPAList().length;
-		int attributeIdxLimit = tmpAttributeList.length;
-		
-		for(int tmpIdx = 0; tmpIdx < attributeIdxLimit; tmpIdx++) {
-			System.out.print(
-					"Enter value for attribute ("
-					+ tmpAttributeList[tmpIdx]);
-			
-			if(tmpIdx < isKeyIdxLimit) {
-				System.out.print(" (key)");
-			}
-			
-			System.out.print("): ");
-			newTuple[tmpIdx] = consoleIn.nextLine();
+			} else break;
 		}
 		
 		System.out.println();
-		
-		return newTuple;
+		System.out.print("Enter your selection: ");
 	}
 }

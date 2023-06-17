@@ -1,15 +1,12 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-
-/**
- * 
- */
+import java.util.Scanner;
 
 /**
  * 
  * 
  * @author Keming He
- * @version 20230607
+ * @version 20230616
  *
  */
 public class Relation {
@@ -34,11 +31,6 @@ public class Relation {
 	private int numOfPA;
 	private ArrayList <String[]> tuples = new ArrayList <> ();
 	
-	
-	
-	/**
-	 * 
-	 */
 	public Relation(String newName, String[] newAttributeList, int newNumOfPA) {
 		
 		this.name = newName;	
@@ -137,5 +129,31 @@ public class Relation {
 	
 	public void deleteExistingTuple (int tupleIdx) {
 		this.tuples.remove(tupleIdx);
+	}
+	
+	public static String [] createNewTuple (Relation R, Scanner consoleIn) {
+		
+		String [] tmpAttributeList = R.getAttributeList();
+		String [] newTuple = new String [tmpAttributeList.length];
+		
+		int isKeyIdxLimit = R.getPAList().length;
+		int attributeIdxLimit = tmpAttributeList.length;
+		
+		for(int tmpIdx = 0; tmpIdx < attributeIdxLimit; tmpIdx++) {
+			System.out.print(
+					"Enter value for attribute ("
+					+ tmpAttributeList[tmpIdx]);
+			
+			if(tmpIdx < isKeyIdxLimit) {
+				System.out.print(" (key)");
+			}
+			
+			System.out.print("): ");
+			newTuple[tmpIdx] = consoleIn.nextLine();
+		}
+		
+		System.out.println();
+		
+		return newTuple;
 	}
 }
