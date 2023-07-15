@@ -4,7 +4,7 @@
  * and SQLite database back-end.
  * 
  * @author Keming He
- * @version 20230712
+ * @version 20230714
  */
 
 import java.util.*;
@@ -345,7 +345,10 @@ public class MainApplication {
 		return selectedTName;
 	}
 	
-	// TODO
+	//The following six string arrays
+	//contains column names and constraints
+	//for tables CUSTOMER, ANIME, STUDIO, and CREATOR.
+	//They are used for insert prompts.
 	private static final String [] COL_CUSTOMER = {
 			"Username (type text, prime, not null)",
 			"Password (type text, not null)",
@@ -377,8 +380,28 @@ public class MainApplication {
 			"Studio_name (type text, prime, foreign key, not null)"
 	};
 	
+	/**
+	 * Method to prompt and obtain from the user 
+	 * all column values of a new row
+	 * to be inserted into a given table.
+	 * 
+	 * @param consoleIn
+	 * 		The user input stream.
+	 * @param tableName
+	 * 		The name of the table the user wish to insert into.
+	 * @param columnNames
+	 * 		A string array of column names of a given table.
+	 * @return newRow
+	 * 		A string array of column values by user input.
+	 * 
+	 * @requires consoleIn != null
+	 * @requires tableName is one of the four valid tables.
+	 * @requires columnNames matches the given table.
+	 */
 	private static String [] getNewRowColumnValues(Scanner consoleIn, String tableName, 
 			String[] columnNames) {
+		//Check method requirements are met.
+		assert consoleIn != null && tableName != null && columnNames != null;
 		
 		System.out.println();
 		System.out.println("Please enter column values for new row in table: "
@@ -388,6 +411,8 @@ public class MainApplication {
 		int columnNum = columnNames.length;
 		String [] newRow = new String [columnNum];
 		
+		//Obtain each column value from the user
+		//and store in the return string array.
 		for (int idx = 0; idx < columnNum; idx++) {
 			
 			System.out.print(columnNames[idx] + ": ");
@@ -400,14 +425,22 @@ public class MainApplication {
 	}
 	
 	/**
-	 * TODO
+	 * Method (procedure, no return values) to insert a new record
+	 * into a given table in the given SQLite database.
 	 * 
 	 * @param consoleIn
+	 * 		The user input stream.
 	 * @param conn
+	 * 		The connection object to the SQLite database.
 	 * @param tableName
+	 * 		The name of the table to make a insertion.
+	 * 
+	 * @requires consoleIn != null
+	 * @requires conn != null
+	 * @requires tableName is one of the four tables.
 	 */
 	private static void insertNewRecord(Scanner consoleIn, Connection conn, String tableName) {
-		
+		//Check method requirements are met.
 		assert consoleIn != null && conn != null && tableName != null;
 		
 		try {
