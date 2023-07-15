@@ -345,10 +345,10 @@ public class MainApplication {
 		return selectedTName;
 	}
 	
-	//The following six string arrays
+	//The following four string arrays
 	//contains column names and constraints
 	//for tables CUSTOMER, ANIME, STUDIO, and CREATOR.
-	//They are used for insert prompts.
+	//They are used for column value input prompts.
 	private static final String [] COL_CUSTOMER = {
 			"Username (type text, prime, not null)",
 			"Password (type text, not null)",
@@ -382,43 +382,74 @@ public class MainApplication {
 	
 	/**
 	 * Method to prompt and obtain from the user 
-	 * all column values of a new row
-	 * to be inserted into a given table.
+	 * all column values of a row
+	 * to be inserted/updated into a given table.
 	 * 
 	 * @param consoleIn
 	 * 		The user input stream.
 	 * @param tableName
-	 * 		The name of the table the user wish to insert into.
-	 * @param columnNames
-	 * 		A string array of column names of a given table.
+	 * 		The name of the table the user wish to insert/update into.
+	 * 
 	 * @return newRow
 	 * 		A string array of column values by user input.
+	 * 		Null if tableName is invalid.
 	 * 
 	 * @requires consoleIn != null
 	 * @requires tableName is one of the four valid tables.
-	 * @requires columnNames matches the given table.
 	 */
-	private static String [] getNewRowColumnValues(Scanner consoleIn, String tableName, 
-			String[] columnNames) {
+	private static String [] getRowColumnValues(Scanner consoleIn, String tableName) {
 		//Check method requirements are met.
-		assert consoleIn != null && tableName != null && columnNames != null;
+		assert consoleIn != null && tableName != null;
 		
-		System.out.println();
-		System.out.println("Please enter column values for new row in table: "
-				+ tableName);
-		System.out.println();
+		//Declare return string array.
+		String [] newRow = null;
 		
-		int columnNum = columnNames.length;
-		String [] newRow = new String [columnNum];
-		
-		//Obtain each column value from the user
-		//and store in the return string array.
-		for (int idx = 0; idx < columnNum; idx++) {
-			
-			System.out.print(columnNames[idx] + ": ");
-			newRow[idx] = consoleIn.nextLine();
+		//Determine column name prompt based on given table name.
+		String [] columnNames = null;
+		switch(tableName) {
+			case "CUSTOMER":	
+				columnNames = COL_CUSTOMER; 
+				break;
+			case "ANIME": 		
+				columnNames = COL_ANIME; 
+				break;
+			case "STUDIO":  	
+				columnNames = COL_STUDIO; 
+				break;
+			case "CREATOR": 	
+				columnNames = COL_CREATOR; 
+				break;
+			default: 		
+				columnNames = null; 
+				break;
 		}
 		
+		if(columnNames != null) {
+			
+			System.out.println();
+			System.out.println("Please enter the new column values for row in table: "
+					+ tableName);
+			System.out.println();
+			
+			int columnNum = columnNames.length;
+			newRow = new String [columnNum];
+			
+			//Obtain each column value from the user
+			//and store in the return string array.
+			for (int idx = 0; idx < columnNum; idx++) {
+				
+				System.out.print(columnNames[idx] + ": ");
+				newRow[idx] = consoleIn.nextLine();
+			}
+			
+		} else {
+			//Else given table name is invalid. 
+			//Print error and return null.
+			System.out.println("Err: invalid table name.");
+			System.out.println("...Table must be either CUSTOMER, ANIME, STUDIO, or CREATOR.");
+			System.out.println("...Method call returning null.");
+		}
+			
 		System.out.println();
 		
 		return newRow;
@@ -448,7 +479,7 @@ public class MainApplication {
 			
 			if (tableName.equals("CUSTOMER")) {
 				
-				String [] newRow = getNewRowColumnValues(consoleIn, tableName, COL_CUSTOMER);
+				String [] newRow = getRowColumnValues(consoleIn, tableName);
 				
 				String newInsertSQL = "INSERT INTO " + tableName + " VALUES(?, ?, ?, ?, ?, ?, ?, ?);";
 				pStat = conn.prepareStatement(newInsertSQL);
@@ -460,7 +491,7 @@ public class MainApplication {
 				
 			} else if (tableName.equals("ANIME")) {
 				
-				String [] newRow = getNewRowColumnValues(consoleIn, tableName, COL_ANIME);
+				String [] newRow = getRowColumnValues(consoleIn, tableName);
 				
 				String newInsertSQL = "INSERT INTO " + tableName + " VALUES(?, ?, ?, ?, ?);";
 				pStat = conn.prepareStatement(newInsertSQL);
@@ -488,7 +519,7 @@ public class MainApplication {
 				
 			} else if (tableName.equals("STUDIO")) {
 				
-				String [] newRow = getNewRowColumnValues(consoleIn, tableName, COL_STUDIO);
+				String [] newRow = getRowColumnValues(consoleIn, tableName);
 								
 				String newInsertSQL = "INSERT INTO " + tableName + " VALUES(?, ?, ?, ?);";
 				pStat = conn.prepareStatement(newInsertSQL);
@@ -499,7 +530,7 @@ public class MainApplication {
 				
 			} else if (tableName.equals("CREATOR")) {
 
-				String [] newRow = getNewRowColumnValues(consoleIn, tableName, COL_CREATOR);
+				String [] newRow = getRowColumnValues(consoleIn, tableName);
 				
 				String newInsertSQL = "INSERT INTO " + tableName + " VALUES(?, ?);";
 				pStat = conn.prepareStatement(newInsertSQL);
@@ -543,20 +574,250 @@ public class MainApplication {
 		}
 	}
 	
-	private static void searchExistingRecord(Scanner consoleIn, Connection conn, String tableName) {
-		//TODO
-	}
+	//The following four string arrays contains primary key name(s)
+	//for tables CUSTOMER, ANIME, STUDIO, and CREATOR.
+	//They are used for primary key value input prompts.
+	private static final String [] PK_CUSTOMER = {"Username"};
+	private static final String [] PK_ANIME = {"Title"};
+	private static final String [] PK_STUDIO = {"Name"};
+	private static final String [] PK_CREATOR = {"Anime_title", "Studio_name"};
 	
-	private static void updateExistingRecord(Scanner consoleIn, Connection conn, String tableName) {
-		//TODO
-	}
-	
-	private static void deleteExistingRecord(Scanner consoleIn, Connection conn, String tableName) {
-		//TODO
+	/**
+	 * Method to prompt and obtain from the user 
+	 * value the primary key column(s) for a given table.
+	 * Used to later locate a row to update or delete.
+	 * 
+	 * @param consoleIn
+	 * 		The user input stream.
+	 * @param tableName
+	 * 		The name of the table the user wish to search from.
+	 * 
+	 * @return userPK
+	 * 		A string array of primary key value(s) by user input.
+	 * 
+	 * @requires consoleIn != null
+	 * @requires tableName is one of the four valid tables.
+	 */
+	private static String [] getPrimaryKeyValues(Scanner consoleIn, String tableName) {
+		//Check method requirements are met.
+		assert consoleIn != null && tableName != null;
+		
+		//Declare return string array.
+		String [] userPK = null;
+		
+		//Determine column name prompt based on given table name.
+		String [] pKNames = null;
+		switch(tableName) {
+			case "CUSTOMER":	pKNames = PK_CUSTOMER; 
+								break;
+			case "ANIME": 		pKNames = PK_ANIME; 
+								break;
+			case "STUDIO":  	pKNames = PK_STUDIO; 
+								break;
+			case "CREATOR": 	pKNames = PK_CREATOR; 
+								break;
+			default: 			pKNames = null; 
+								break;
+		}
+		
+		if(pKNames != null) {
+			
+			System.out.println();
+			System.out.println("In order to locate the row you need in table: "
+					+ tableName);
+			System.out.println("...Please enter its primary key value(s): ");
+			System.out.println();
+			
+			int pKNum = pKNames.length;
+			userPK = new String [pKNum];
+			
+			//Obtain each column value from the user
+			//and store in the return string array.
+			for (int idx = 0; idx < pKNum; idx++) {
+				
+				System.out.print(pKNames[idx] + ": ");
+				userPK[idx] = consoleIn.nextLine();
+			}
+			
+		} else {
+			//Else given table name is invalid. 
+			//Print error and return null.
+			System.out.println("Err: invalid table name.");
+			System.out.println("...Table must be either CUSTOMER, ANIME, STUDIO, or CREATOR.");
+			System.out.println("...Method call returning null.");
+		}
+			
+		System.out.println();
+		
+		return userPK;
 	}
 	
 	/**
-	 * Helper method (procedure, not return value) to print the result of
+	 * 
+	 * @param consoleIn
+	 * @param conn
+	 * @param tableName
+	 */
+	private static void searchExistingRecord(Scanner consoleIn, Connection conn, String tableName) {
+		//TODO
+		System.out.println("Feature to be fully completed in finaly project submission.");
+	}
+	
+	/**
+	 * 
+	 * @param consoleIn
+	 * @param conn
+	 * @param tableName
+	 */
+	private static void updateExistingRecord(Scanner consoleIn, Connection conn, String tableName) {
+		//TODO
+		System.out.println("Feature to be fully completed in finaly project submission.");
+	}
+	
+	/**
+	 * Method (procedure, no return values) to delete an existing record
+	 * from a given table in the given SQLite database.
+	 * The record is located via the primary key value(s)
+	 * obtained from the user.
+	 * 
+	 * @param consoleIn
+	 * 		The user input stream.
+	 * @param conn
+	 * 		The connection object to the SQLite database.
+	 * @param tableName
+	 * 		The name of the table to make a deletion.
+	 * 
+	 * @requires consoleIn != null
+	 * @requires conn != null
+	 * @requires tableName is one of the four tables.
+	 */
+	private static void deleteExistingRecord(Scanner consoleIn, Connection conn, String tableName) {
+		//Check method requirements are met.
+		assert consoleIn != null && conn != null && tableName != null;
+		
+		try {
+			PreparedStatement pStat= null;
+			
+			String deleteSQL = null;
+			switch (tableName) {
+				case "CUSTOMER": 
+					deleteSQL = "DELETE FROM " + tableName + " WHERE Username = ?;";
+					break;
+				case "ANIME": 
+					deleteSQL = "DELETE FROM " + tableName + " WHERE Title = ?;";
+					break;
+				case "STUDIO": 
+					deleteSQL = "DELETE FROM " + tableName + " WHERE Name = ?;";
+					break;
+				case "CREATOR": 
+					deleteSQL = "DELETE FROM " + tableName 
+						+ " WHERE Anime_title = ? AND Studio_name = ?;";
+					break;
+				default: 
+					deleteSQL = null;
+					break;
+			}
+			
+			if(deleteSQL != null) {
+				
+				pStat = conn.prepareStatement(deleteSQL);
+				
+				String [] userPK = getPrimaryKeyValues(consoleIn, tableName);
+				for(int i = 0; i < userPK.length; i++) {
+					pStat.setString((i+1), userPK[i]);
+				}
+				
+			} else {
+				//Handle if table name is out of bounds.
+				//Nullifies PreparedStatement and exit.
+				System.out.println("Err: Invalid table name. Nullifying PreparedStatement.");
+				pStat = null;
+			}
+			
+			//If PreparedStatement is valid, execute update and print confirmation.
+			if (pStat != null) {
+				
+				pStat.executeUpdate();
+				
+				System.out.println("Record (if exist) successfully deleted from table: " + tableName +".");
+				System.out.println("...Printing updated table content as confirmation.");
+				System.out.println();
+				
+				printTable(conn, tableName);
+			}
+			
+			
+			//Close PreparedStatement object when done with insert (update).
+			//Handle and print if an exception is thrown.
+			try {
+				if(pStat != null) pStat.close();
+			} catch (SQLException sE) {
+				printSQLExceptionData(sE, "closing the delete PreparedStatement.");
+			}
+			
+			//Handle and print if an exception is thrown
+			//during executeUpdate().
+		} catch (SQLException sE) {
+			printSQLExceptionData(sE, "deleting via PreparedStatement.");
+		}
+	}
+	
+	//TODO
+//	private static boolean getAndPrintResultSet(PreparedStatement pStat, String sELabel) {
+//		
+//		assert pStat != null;
+//		
+//		boolean noResults = false;
+//		
+//		try {
+//			ResultSet rSet = pStat.executeQuery();
+//			ResultSetMetaData rSMeta = rSet.getMetaData();
+//			
+//			//Print the column names of the query result.
+//			System.out.print("Columns: ");
+//			
+//			int cCount = rSMeta.getColumnCount();
+//			for (int cIdx = 1; cIdx <= cCount; cIdx++) {
+//				System.out.print(rSMeta.getColumnName(cIdx));
+//				if (cIdx < cCount) System.out.print(", ");
+//			}
+//			
+//			System.out.println();
+//			System.out.println();
+//			
+//			//Print each row of the query result.
+//			int tmpRowNum = 1;
+//			while (rSet.next()) {	
+//				
+//				System.out.print("Row " + String.valueOf(tmpRowNum) + ": ");
+//				
+//				for (int rIdx = 1; rIdx <= cCount; rIdx++) {
+//					System.out.print(rSet.getString(rIdx));
+//					if (rIdx < cCount) System.out.print(", ");
+//				}
+//				System.out.println();
+//				System.out.println();
+//				
+//				tmpRowNum++;
+//			}
+//			
+//			
+//			//Close ResultSet and PreparedStatement when done.
+//			try {
+//				if (rSet != null) rSet.close();
+//			} catch (SQLException sE) {
+//				String tmpLabel = "closing ResultSet.";
+//				printSQLExceptionData(sE, tmpLabel);
+//			}
+//		} catch (SQLException sQLE) {
+//			
+//		}
+//		
+//		return noResults;
+//	}
+	
+	/**
+	 * Helper method (procedure, no return values) to print the result of
 	 * an SQL query with no parameters. The printed result includes 
 	 * all the column names and all the rows with values.
 	 * 
@@ -571,7 +832,7 @@ public class MainApplication {
 	 * @requires sQLCode is valid.
 	 * @requires sELabel is valid and descriptive.
 	 */
-	private static void printSQLResult(Connection conn, String sQLCode, String sELabel) {
+	private static void exQueryAndPrint(Connection conn, String sQLCode, String sELabel) {
 		//Check method requirement that connection is not null,
 		//and query code and exception label is valid.
 		assert conn != null && sQLCode != null && sELabel != null;
@@ -627,8 +888,8 @@ public class MainApplication {
 				printSQLExceptionData(sE, tmpLabel);
 			}
 			
-		} catch (SQLException sE) {
-			printSQLExceptionData(sE, sELabel);
+		} catch (SQLException sQLE) {
+			printSQLExceptionData(sQLE, sELabel);
 		}
 	}
 	
@@ -650,7 +911,7 @@ public class MainApplication {
 		
 		String printTableSQL = "SELECT * FROM " + tableName + ";";
 		String printTableELabel = "printing table: " + tableName + ".";
-		printSQLResult(conn, printTableSQL, printTableELabel);
+		exQueryAndPrint(conn, printTableSQL, printTableELabel);
 	}
 	
 	/**
@@ -767,7 +1028,7 @@ public class MainApplication {
 			String exLabel = "executing SQL query for Report "
 					+ String.valueOf(idx+1)
 					+ ".";
-			printSQLResult(conn, allReportSQL[idx], exLabel);
+			exQueryAndPrint(conn, allReportSQL[idx], exLabel);
 			
 			System.out.println("---- End of Report " 
 					+ String.valueOf(idx+1) 
