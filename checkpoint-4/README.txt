@@ -1,25 +1,31 @@
-This is the README file for Checkpoint 2 of the database project.
+This is the README file for the final submission of the database project.
 
-Keming (he.1537) takes full responsibility for the Checkpoint 2
-submission version of this Java front-end prototype.
-There are plans to include more members in future versions.
+Team SHRX takes full responsibility for the final
+submission version of this Java 8 front-end, JDBC integration,
+SQLite 3 back-end program.
 
 * To run the program, 
 	import into Java eclipse IDE and run MainApplication.java.
 
-* To insert a new record into a relation, 
+* To insert a new record into a table, 
 	follow the main menu prompt.
-* To search for an existing record in a particular relation, 
+* To search for existing records in a table, 
+	follow the main menu prompt;
+	note that you can enter a substring of
+	the primary key values you are searching for,
+	and browse through all partially matching results.
+* To update an existing record in a table,
 	follow the main menu prompt.
-* To update or delete an existing record in a particular relation,
-	first follow the main menu prompt to search up such record;
-	then follow further prompts to update or delete such record.
+* To delete an existing record in a table,
+	follow the main menu prompt.
 	
-* The prototype implements 3 relations, 
-	and populates each with 3 tuples.
-	Please note that all changes to the data
-	will reset once the program terminates.
+* The program implements INSERT, SEARCH, UPDATE, DELETE, 
+	to four tables: CUSTOMER, ANIME, STUDIO, and CREATOR.
+	
+* Please refer to Team SHRX's Final Project Report 
+	and its attached files for the user manual, database schema,
+	and further information.
 	
 * For any questions, please contact Team SHRX via Carmen.
 
-Copyright Keming He, Team SHRX, 20230616
+Copyright Keming He, Team SHRX, 20230719
