@@ -15,7 +15,7 @@ public class MainApplication {
 	/*
 	 * File path of Team SHRX's SQLite database.
 	 */
-	private static final String DBPATH = "AllRecords.db";
+	private static final String DBPATH = "TeamSHRX_Database_Binary.db";
 
 	/**
 	 * Main method of Team SHRX's Java program.
